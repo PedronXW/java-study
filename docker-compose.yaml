@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  auth-pg:
+    image: postgres:16.2
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: authdb
+    volumes:
+      - ./data/pg:/data/postgres
+
+  auth:
+    build: .
+    depends_on:
+      auth-pg:
+        condition: service_started
+    links:
+     - "auth-pg"
+    container_name: auth
+    restart: always
+    entrypoint: sleep infinity
+    ports: 
+      - 8080:8080
+    environment:
+      JWT_SECRET: secret
+      RESET_PASSWORD_SECRET: reset_password_secret
+    volumes:
+      - .:/app
